@@ -32,38 +32,36 @@
     </table>
   </div>
 
-  <script>
-    const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxUzQIc5LGAsmESzUKcE5SWatPslHwyWzFTvWD6s_GFF2h4t6MxtD5JmHjpJySsDBX3xg/exec'; // ใส่ URL ของ Web App คุณที่นี่
+ <script>
+  async function loadTasks() {
+    try {
+      const response = await fetch('/api/tasks'); // ✅ เรียกผ่าน API Proxy บน Vercel
+      if (!response.ok) throw new Error('Network response was not ok');
 
-    async function loadTasks() {
-      try {
-        const response = await fetch(GAS_WEBAPP_URL + '?action=getTasks');
-        if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      const tbody = document.getElementById('tasksBody');
 
-        const data = await response.json();
-        const tbody = document.getElementById('tasksBody');
-
-        if (!data.length) {
-          tbody.innerHTML = '<tr><td colspan="5">ไม่มีข้อมูล</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = data.map(t => `
-          <tr>
-            <td>${t.subject}</td>
-            <td>${t.description}</td>
-            <td>${t.assignedDate}</td>
-            <td>${t.dueDate}</td>
-            <td>${t.leftDay} days</td>
-          </tr>
-        `).join('');
-      } catch (error) {
-        console.error('Error loading tasks:', error);
-        document.getElementById('tasksBody').innerHTML = '<tr><td colspan="5">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="5">ไม่มีข้อมูล</td></tr>';
+        return;
       }
-    }
 
-    loadTasks();
-  </script>
+      tbody.innerHTML = data.map(t => `
+        <tr>
+          <td>${t.subject}</td>
+          <td>${t.description}</td>
+          <td>${t.assignedDate}</td>
+          <td>${t.dueDate}</td>
+          <td>${t.leftDay} days</td>
+        </tr>
+      `).join('');
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      document.getElementById('tasksBody').innerHTML = '<tr><td colspan="5">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+    }
+  }
+
+  loadTasks();
+</script>
 </body>
 </html>
